@@ -1,4 +1,4 @@
-package com.li.reggie.service.impl;
+package com.li.reggie.filter.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.li.reggie.entity.DishFlavor;
