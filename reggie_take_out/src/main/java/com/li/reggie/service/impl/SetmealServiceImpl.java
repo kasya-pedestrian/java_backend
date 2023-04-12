@@ -1,6 +1,8 @@
-package com.li.reggie.filter.impl;
+package com.li.reggie.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.li.reggie.commen.CustomException;
 import com.li.reggie.dto.SetmealDto;
 import com.li.reggie.entity.Setmeal;
 import com.li.reggie.entity.SetmealDish;
@@ -30,6 +32,29 @@ public class SetmealServiceImpl extends ServiceImpl<SetmealMapper,Setmeal> imple
         }).collect(Collectors.toList());
 
         setmealDishService.saveBatch(setmealDishes);
+
+    }
+
+    /**
+     * セットを削除する
+     * @param ids
+     */
+    @Transactional
+    public void removeWithDish(List<Long> ids) {
+        //セットの販売状態を調べる。削除可能かを確認する
+        LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(Setmeal::getId,ids);
+        queryWrapper.eq(Setmeal::getStatus,1);
+        int count = this.count(queryWrapper);
+        if (count > 0){
+            throw new CustomException("セットは販売中なので、削除出来ません");
+        }
+        //目標データをSetmealテーブルから削除する
+        this.removeByIds(ids);
+        //関連テーブルのデータを削除
+        LambdaQueryWrapper<SetmealDish> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.in(SetmealDish::getSetmealId,ids);
+        setmealDishService.remove(lambdaQueryWrapper);
 
     }
 }

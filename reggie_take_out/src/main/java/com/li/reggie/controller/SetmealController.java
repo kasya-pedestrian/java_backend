@@ -73,5 +73,30 @@ public class SetmealController {
         dtoPage.setRecords(list);
         return R.success(dtoPage);
     }
+
+    /**
+     * "セットを削除する"
+     * @param ids
+     * @return
+     */
+    @DeleteMapping
+    public R<String> delete (@RequestParam List<Long> ids){
+        log.info("ids:{}",ids);
+        setmealService.removeWithDish(ids);
+        return R.success("セット削除成功");
+    }
+    @GetMapping("/list")
+    public R getList(Long categoryId,Integer status){
+        LambdaQueryWrapper<Setmeal> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Setmeal::getStatus,status).eq(Setmeal::getCategoryId,categoryId);
+        List<Setmeal> list = setmealService.list(wrapper);
+        return R.success(list);
+    }
+
+    @GetMapping("/dish/{id}")
+    public R getSetMeal(@PathVariable Long id){
+        Setmeal setmeal = setmealService.getById(id);
+        return R.success(setmeal);
+    }
 }
 
